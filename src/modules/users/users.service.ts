@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ConflictException,
   Injectable,
@@ -43,10 +44,20 @@ export class UsersService {
     const userId = await this.repo.findOne({ where: { id } });
     if (!userId) throw new NotFoundException('User not found');
 
-    return this.repo.save(updateUserDto);
+    const updatedUser = this.repo.merge(userId, updateUserDto);
+
+    return this.repo.save(updatedUser);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    const user = await this.repo.findOne({ where: { id } });
+
+    if (!user) throw new NotFoundException(`${id} - This user not exists`);
+
+    const result = await this.repo.remove(user);
+
+    return {
+      message: 'User delete Successfully',
+    };
   }
 }
